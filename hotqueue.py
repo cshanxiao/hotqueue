@@ -18,9 +18,9 @@ __all__ = ['HotQueue']
 __version__ = '0.2.7'
 
 
-def key_for_name(name):
+def key_for_name(name, namespace="hotqueue"):
     """Return the key name used to store the given queue name in Redis."""
-    return 'hotqueue:%s' % name
+    return '%s:%s' % (namespace, name)
 
 
 class HotQueue(object):
@@ -31,6 +31,7 @@ class HotQueue(object):
     >>> queue = HotQueue("myqueue", host="localhost", port=6379, db=0)
     
     :param name: name of the queue
+    :param namespace: namespace of the queue, default: "hotqueue"
     :param serializer: the class or module to serialize msgs with, must have
         methods or functions named ``dumps`` and ``loads``,
         `pickle <http://docs.python.org/library/pickle.html>`_ is the default,
@@ -40,8 +41,9 @@ class HotQueue(object):
         :attr:`host`, :attr:`port`, :attr:`db`
     """
     
-    def __init__(self, name, serializer=pickle, **kwargs):
+    def __init__(self, name, namespace="hotqueue", serializer=pickle, **kwargs):
         self.name = name
+        self.namespace = namespace
         self.serializer = serializer
         self.__redis = Redis(**kwargs)
     
@@ -51,7 +53,7 @@ class HotQueue(object):
     @property
     def key(self):
         """Return the key name used to store this queue in Redis."""
-        return key_for_name(self.name)
+        return key_for_name(self.name, self.namespace)
     
     def clear(self):
         """Clear the queue of all messages, deleting the Redis key."""
