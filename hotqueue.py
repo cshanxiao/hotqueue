@@ -57,6 +57,18 @@ class HotQueue(object):
         """Clear the queue of all messages, deleting the Redis key."""
         self.__redis.delete(self.key)
     
+    def qsize(self):
+        """Return the approximate size of the queue.
+        Because of multithreading/multiprocessing semantics, this is not reliable.
+        """  
+        return self.__len__()
+
+    def empty(self):
+        """Return True if the queue is empty, False otherwise.
+        Because of multithreading/multiprocessing semantics, this is not reliable.
+        """  
+        return self.__len__() == 0
+
     def consume(self, **kwargs):
         """Return a generator that yields whenever a message is waiting in the
         queue. Will block otherwise. Example:
